@@ -36,11 +36,23 @@ class Settings(BaseSettings):
     @field_validator("database_url")
     @classmethod
     def normalize_database_url(cls, value: str) -> str:
+        value = value.strip()
         if value.startswith("postgres://"):
             return value.replace("postgres://", "postgresql+psycopg://", 1)
         if value.startswith("postgresql://"):
             return value.replace("postgresql://", "postgresql+psycopg://", 1)
         return value
+
+    @field_validator(
+        "backend_cors_origins",
+        "web_url",
+        "google_client_id",
+        "google_client_secret",
+        "google_redirect_uri",
+    )
+    @classmethod
+    def strip_string_setting(cls, value: str) -> str:
+        return value.strip()
 
 
 @lru_cache

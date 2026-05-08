@@ -39,7 +39,7 @@ def create_app() -> FastAPI:
 
     @app.on_event("startup")
     def on_startup() -> None:
-        if settings.app_env == "development":
+        if settings.auto_create_tables:
             create_database_tables()
 
     return app

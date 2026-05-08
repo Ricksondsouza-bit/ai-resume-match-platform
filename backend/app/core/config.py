@@ -1,10 +1,12 @@
 from functools import lru_cache
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     app_env: str = "development"
+    auto_create_tables: bool = True
     database_url: str = "postgresql+psycopg://resume_match:resume_match@localhost:5432/resume_match"
     backend_cors_origins: str = "http://localhost:3000"
     web_url: str = "http://localhost:3000"
@@ -30,6 +32,15 @@ class Settings(BaseSettings):
             for origin in self.backend_cors_origins.split(",")
             if origin.strip()
         ]
+
+    @field_validator("database_url")
+    @classmethod
+    def normalize_database_url(cls, value: str) -> str:
+        if value.startswith("postgres://"):
+            return value.replace("postgres://", "postgresql+psycopg://", 1)
+        if value.startswith("postgresql://"):
+            return value.replace("postgresql://", "postgresql+psycopg://", 1)
+        return value
 
 
 @lru_cache
